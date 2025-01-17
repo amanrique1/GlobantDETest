@@ -1,2 +1,7 @@
+__pycache__/
+*.pyc
+*.pyo
 data/*
 *.pdf
+.DS_Store
+.env

@@ -1,7 +1,13 @@
 import os
 import logging
-from fastapi import FastAPI, UploadFile, HTTPException
+from fastapi import FastAPI, UploadFile, Depends, HTTPException
+from sqlalchemy.orm import Session
 from typing import List, Dict, Any
+from database import engine, get_db
+from models import db_models
+from services.department_service import create_departments
+
+db_models.Base.metadata.create_all(bind=engine)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -15,19 +21,21 @@ BATCH_SIZE = os.getenv('BATCH_SIZE', 1000)
 @app.post("/{table_name}/upload")
 async def upload_csv(
     table_name: str,
-    file: UploadFile
+    file: UploadFile,
+    db: Session = Depends(get_db)
 ):
     """Upload a CSV file and insert its records into the database."""
     if not file.filename.endswith('.csv'):
         raise HTTPException(status_code=400, detail="Only CSV files are allowed")
 
     content = await file.read()
-    return {}
+    return await create_departments(content, db)
 
 @app.post("/{table_name}/batch")
 async def batch_insert(
     table_name: str,
-    data: List[Dict[str, Any]]
+    data: List[Dict[str, Any]],
+    db: Session = Depends(get_db)
 ):
     """Insert a batch of records into the database."""
     if len(data) > BATCH_SIZE:
@@ -38,7 +46,7 @@ async def batch_insert(
     return {}
 
 @app.get("/hello")
-async def hello():
+async def hello(db: Session = Depends(get_db)):
     return {"message": "Hello, World!"}
 
 @app.on_event("startup")
