@@ -1,27 +1,69 @@
-import os
-from services.utils import process_csv
+from typing import Dict, Any, List
+
+from sqlalchemy.exc import IntegrityError, OperationalError, DatabaseError
 from sqlalchemy.orm import Session
+
 from models.db_models import Department
-from typing import Dict, Any
+from services.utils import process_csv
+from utils.constants import *
+from utils.log_manager import get_logger
 
-BATCH_SIZE = os.getenv('BATCH_SIZE', 1000)
+# Ensure type safety
+logger = get_logger()
 
-async def create_departments(file_content: bytes, db: Session) -> Dict[str, Any]:
+async def create_departments_csv(file_content: bytes, db: Session) -> int:
+    """
+    Creates departments from a CSV file.
+
+    Args:
+        file_content (bytes): The content of the CSV file.
+        db (Session): The SQLAlchemy database session.
+
+    Returns:
+        int: The number of departments created successfully.
+    """
+    records = await process_csv(file_content, Department.__table__.columns.keys())
+    return await create_departments(records, db)
+
+
+async def create_departments(data: List[Dict[str, Any]], db: Session) -> int:
+    """
+    Creates departments in the database in batches.
+
+    Args:
+        data (List[Dict[str, Any]]): A list of dictionaries, where each dictionary
+                                    represents a department record.
+        db (Session): The SQLAlchemy database session.
+
+    Returns:
+        int: The number of departments created successfully.
+
+    Raises:
+        Exception: If a duplicate record is found or an error occurs during processing.
+    """
     try:
-        records = await process_csv(file_content, Department.__table__.columns.keys())
-        for i in range(0, len(records), BATCH_SIZE):
-            batch = records[i:i + BATCH_SIZE]
+        for i in range(0, len(data), BATCH_SIZE):
+            batch = data[i:i + BATCH_SIZE]
             departments = [Department(**item) for item in batch]
             db.bulk_save_objects(departments)
+            db.flush()  # Flush after each batch to persist to database
 
-            # Flush the session after each batch to ensure it is written to the DB, even if not committed
-            db.flush()
+        db.commit()  # Commit all changes at the end
+        return len(data)
 
-        # Commit all changes after processing all batches
-        db.commit()
+    except IntegrityError as e:
+        db.rollback()
+        logger.info(f"Integrity error occurred: {e.orig}")
+        if "duplicate key value violates unique constraint" in str(e.orig):
+            raise Exception(UNIQUE_CONSTRAINT_VIOLATION_MSG)
+        raise Exception(GENERIC_ERROR_MSG)
 
-        return len(records)
+    except (OperationalError, DatabaseError) as e:
+        db.rollback()
+        logger.info(f"Database error occurred: {e.orig}")
+        raise Exception(GENERIC_ERROR_MSG)
 
     except Exception as e:
-        db.rollback()  # Rollback any changes if there's an error
-        raise e
+        db.rollback()
+        logger.info(f"An unexpected error occurred: {e}")
+        raise Exception(GENERIC_ERROR_MSG)
