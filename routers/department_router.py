@@ -2,7 +2,7 @@ from typing import List
 
 from database import get_db
 from schemas.schemas import DepartmentCreate
-from services.department_service import create_departments, create_departments_csv
+from services.department_service import create_departments, create_departments_csv, get_quarter_hires,get_hires_over_avg
 
 from sqlalchemy.orm import Session
 
@@ -59,5 +59,19 @@ async def batch_insert(
     """
     try:
         return await create_departments(data, db)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail= str(e))
+
+@dept_router.get("/quarter_hires", description="Number of employees hired for each job and department in 2021 divided by quarter ordered alphabetically by department and job")
+async def quarter_hires(db: Session = Depends(get_db)):
+    try:
+        return await get_quarter_hires(db)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail= str(e))
+
+@dept_router.get("/hires_over_avg", description="List of ids, name and number of employees hired of each department that hired more employees than the mean of employees hired in 2021 for all the departments.")
+async def hires_over_avg(db: Session = Depends(get_db)):
+    try:
+        return await get_hires_over_avg(db)
     except Exception as e:
         raise HTTPException(status_code=400, detail= str(e))

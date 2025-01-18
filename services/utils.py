@@ -41,11 +41,11 @@ async def process_csv(file_content: bytes, columns: List[str]) -> List[Dict[str,
         return list(csv_reader)
 
     except UnicodeDecodeError as e:
-        logger.info(f"Could not decode file content: {e}")
+        logger.error(f"Could not decode file content: {e}")
         raise Exception(UNICODE_DECODE_ERROR_MSG)
     except csv.Error as e:
-        logger.info(f"CSV parsing error: {e}")
+        logger.error(f"CSV parsing error: {e}")
         raise Exception(CSV_ERROR_MSG)
     except Exception as e:
-        logger.info(f"An unexpected error occurred: {e}")
+        logger.error(f"An unexpected error occurred: {e}")
         raise Exception(GENERIC_ERROR_MSG)

@@ -62,7 +62,7 @@ async def create_employees(data: List[Dict[str, Any]], db: Session) -> int:
 
     except IntegrityError as e:
         db.rollback()
-        logger.info(f"Integrity error occurred: {e.orig}")
+        logger.error(f"Integrity error occurred: {e.orig}")
         error_message = str(e.orig).lower()
 
         if "foreign key violation" in error_message or "foreign key constraint" in error_message:
@@ -73,10 +73,10 @@ async def create_employees(data: List[Dict[str, Any]], db: Session) -> int:
 
     except (OperationalError, DatabaseError) as e:
         db.rollback()
-        logger.info(f"Database error occurred: {e.orig}")
+        logger.error(f"Database error occurred: {e.orig}")
         raise Exception(GENERIC_ERROR_MSG)
 
     except Exception as e:
         db.rollback()
-        logger.info(f"An unexpected error occurred: {e}")
+        logger.error(f"An unexpected error occurred: {e}")
         raise Exception(GENERIC_ERROR_MSG)

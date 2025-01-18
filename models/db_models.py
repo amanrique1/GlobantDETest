@@ -13,7 +13,7 @@ class Department(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Name of the department (must be unique and cannot be empty)
-    name =  Column(String, unique=True, nullable=False)
+    department =  Column(String, unique=True, nullable=False)
 
     # Relationship with the Employee model
     # Represents a one-to-many relationship: A Department can have many Employees
