@@ -1,6 +1,9 @@
 from models import db_models
-from database import engine, get_db
+from database import engine
+
+from routers.job_router import job_router
 from routers.department_router import dept_router
+from routers.employee_router import employee_router
 
 from utils.log_manager import get_logger
 
@@ -43,5 +46,7 @@ def health_check():
     """
     return {"status": "ok"}
 
-# Include the department router for department-related functionalities
+# Include routers for entity functionalities
 app.include_router(router=dept_router)
+app.include_router(router=job_router)
+app.include_router(router=employee_router)

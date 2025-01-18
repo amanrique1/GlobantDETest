@@ -48,13 +48,13 @@ class Employee(Base):
     name = Column(String, nullable=False)
 
     # Date and time the employee record was created
-    datetime = Column(DateTime, nullable=False)
+    datetime = Column(DateTime)
 
     # Foreign key referencing the ID of the department the employee belongs to
-    department_id = Column(Integer, ForeignKey("departments.id"), nullable=False)
+    department_id = Column(Integer, ForeignKey("departments.id"))
 
     # Foreign key referencing the ID of the job the employee holds
-    job_id = Column(Integer, ForeignKey("jobs.id"), nullable=False)
+    job_id = Column(Integer, ForeignKey("jobs.id"))
 
     # Relationship with the Department model
     # Represents a many-to-one relationship: An Employee belongs to one Department
