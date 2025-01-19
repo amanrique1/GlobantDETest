@@ -1,7 +1,7 @@
 __pycache__/
 *.pyc
 *.pyo
-data/*.csv
+*.csv
 *.pdf
 .DS_Store
 .env
