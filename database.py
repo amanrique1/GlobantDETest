@@ -1,4 +1,5 @@
 import os
+import json
 
 import boto3
 from botocore.exceptions import ClientError
@@ -24,7 +25,7 @@ try:
 except ClientError as e:
     raise e
 
-secret = get_secret_value_response['SecretString']
+secret = json.loads(get_secret_value_response['SecretString'])
 DB_USER = secret["username"]
 DB_PASSWORD = secret["password"]
 DB_HOST = secret["host"]
