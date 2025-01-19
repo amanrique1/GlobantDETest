@@ -1,0 +1,29 @@
+name: Docker Compose Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create env file
+        run: |
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env.test
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env.test
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env.test
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env.test
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env.test
+
+      - name: Build and run tests
+        run: |
+          docker compose -f docker-compose.test.yaml up \
+            --build \
+            --exit-code-from test \
+            --abort-on-container-exit

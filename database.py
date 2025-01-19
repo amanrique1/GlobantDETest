@@ -6,6 +6,7 @@ from botocore.exceptions import ClientError
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy_utils import database_exists, create_database
 
 # Database connection building from secrets manager
 secret_name = "globant-db"
@@ -35,6 +36,10 @@ DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 # Create the database engine
 engine = create_engine(DB_URL)
+
+# Create database if doesn't exist
+if not database_exists(engine.url):
+    create_database(engine.url)
 
 # Create a session local for session management
 # autocommit = false for manual commits
