@@ -3,6 +3,8 @@ services:
     image: postgres:15
     env_file:
       - .env
+    ports:
+      - "0.0.0.0:5432:5432"
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}

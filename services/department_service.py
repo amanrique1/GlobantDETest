@@ -55,6 +55,11 @@ async def create_departments(data: List[Dict[str, Any]], db: Session) -> int:
         db.commit()  # Commit all changes at the end
         return len(data)
 
+    except TypeError as e:
+        db.rollback()
+        logger.error(f"Type error occurred: {e}")
+        raise Exception(DATA_TYPE_ERROR_MSG)
+
     except IntegrityError as e:
         db.rollback()
         logger.error(f"Integrity error occurred: {e.orig}")
@@ -121,6 +126,7 @@ async def get_quarter_hires(db: Session) -> List[Dict[str, Any]]:
         raise Exception(GENERIC_ERROR_MSG)
 
     except Exception as e:
+        logger.debug(type(e))
         logger.error(f"Unexpected error while executing the query: {e}")
         raise Exception(GENERIC_ERROR_MSG)
 

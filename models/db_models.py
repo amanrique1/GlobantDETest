@@ -29,7 +29,7 @@ class Job(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # Title of the job (cannot be empty)
-    job = Column(String, nullable=False)
+    job = Column(String, unique=True, nullable=False)
 
     # Relationship with the Employee model
     # Represents a one-to-many relationship: A Job can have many Employees

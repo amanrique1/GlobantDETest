@@ -5,3 +5,5 @@ data/*.csv
 *.pdf
 .DS_Store
 .env
+.env.test
+.coverage
