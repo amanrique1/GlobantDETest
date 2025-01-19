@@ -8,7 +8,4 @@ services:
       - .:/app
     env_file:
       - .env.test
-    depends_on:
-      test_postgres:
-        condition: service_healthy
     command: pytest tests/ -v --cov=app
