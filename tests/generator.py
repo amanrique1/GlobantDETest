@@ -1,6 +1,9 @@
 import io
 import csv
 import json
+import random
+
+from datetime import datetime
 
 from typing import List, Dict, Any
 
@@ -29,7 +32,7 @@ def list_of_dicts_to_csv_bytes(data: List[Dict[str, Any]], fieldnames: List[str]
 
 def list_of_dicts_to_json_bytes(data: List[Dict[str, Any]]):
     """
-    Converts a list of dictionaries to json bytes.
+    Converts a list of dictionaries to json bytes, handling datetime objects.
 
     Args:
         data (list): The list of dictionaries to convert.
@@ -38,7 +41,13 @@ def list_of_dicts_to_json_bytes(data: List[Dict[str, Any]]):
         bytes: The converted data in json bytes format.
     """
 
-    return json.dumps(data).encode('utf-8')
+    class DateTimeEncoder(json.JSONEncoder):
+        def default(self, obj):
+            if isinstance(obj, datetime):
+                return obj.isoformat()
+            return super().default(obj)
+
+    return json.dumps(data, cls=DateTimeEncoder).encode('utf-8')
 
 def get_valid_departments(size: int) -> List[Dict[str, Any]]:
     """
@@ -101,3 +110,27 @@ def get_invalid_jobs_name(size: int) -> List[Dict[str, Any]]:
     jobs = [{"id": i, "job": f"job{i}"} for i in range(size)]
     jobs.append({"id": size + 1, "job": "job1"})  # Duplicate name
     return jobs
+
+def get_valid_employees(size: int, department_ids: List[int], job_ids: List[int]) -> List[Dict[str, Any]]:
+    """
+    Generate a list of valid employees dictionaries.
+
+    :param size: Number of employees to generate.
+    :param department_ids: Department ids to assign to employees.
+    :param job_ids: Job ids to assign to employees.
+    :return: A list of dictionaries with unique employees IDs and names.
+    """
+    return [{"id": i, "name": f"name{i}", "datetime":datetime.now(), "department_id":random.choice(department_ids), "job_id":random.choice(job_ids)} for i in range(size)]
+
+def get_invalid_employees_id(size: int, department_ids: List[int], job_ids: List[int]) -> List[Dict[str, Any]]:
+    """
+    Generate a list of employees with a duplicate ID to simulate invalid data.
+
+    :param size: Number of unique employees to generate before adding a duplicate.
+    :param department_ids: Department ids to assign to employees.
+    :param job_ids: Job ids to assign to employees.
+    :return: A list of dictionaries where one dictionary contains a duplicate ID.
+    """
+    employees = [{"id": i, "name": f"name{i}", "datetime":datetime.now(), "department_id":random.choice(department_ids), "job_id":random.choice(job_ids)} for i in range(size)]
+    employees.append({"id": 1, "name": "name1", "datetime":datetime.now(), "department_id":random.choice(department_ids), "job_id":random.choice(job_ids)})  # Duplicate ID
+    return employees
