@@ -170,3 +170,9 @@ Run the test suite:
 ```bash
 docker-compose -f docker-compose.test.yaml up --build
 ```
+
+Run the compose and test with Postman or any other tool. Jupyter Notebook sample available
+```bash
+docker-compose up --build
+```
+Modify `host` variable in `mini_test.ipynb` and run all.
