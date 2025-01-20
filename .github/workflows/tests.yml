@@ -26,7 +26,7 @@ jobs:
         run: cat .env.test
 
       - name: Debug Docker Compose
-        run: docker compose --env-file .env.test config
+        run: docker compose -f docker-compose.test.yaml --env-file .env.test config
 
       - name: Build and run tests
         run: |
