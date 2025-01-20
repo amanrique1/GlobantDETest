@@ -31,6 +31,7 @@ jobs:
       - name: Build and run tests
         run: |
           docker compose -f docker-compose.test.yaml up \
+            --env-file .env.test \
             --build \
             --exit-code-from test \
             --abort-on-container-exit
