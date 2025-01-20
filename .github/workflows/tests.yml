@@ -26,9 +26,6 @@ jobs:
           echo "DB_NAME is set: ${{ env.DB_NAME != '' }}"
           echo "DB_PORT is set: ${{ env.DB_PORT != '' }}"
 
-      - name: Debug Docker Compose
-        run: docker compose -f docker-compose.test.yaml --env-file .env.test config
-
       - name: Build and run tests
         run: |
           docker compose -f docker-compose.test.yaml up \
