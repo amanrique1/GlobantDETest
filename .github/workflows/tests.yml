@@ -19,12 +19,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Debug Environment
+      - name: Create env file
         run: |
-          echo "DB_USER is set: ${{ env.DB_USER != '' }}"
-          echo "DB_PASSWORD is set: ${{ env.DB_PASSWORD != '' }}"
-          echo "DB_NAME is set: ${{ env.DB_NAME != '' }}"
-          echo "DB_PORT is set: ${{ env.DB_PORT != '' }}"
+          # Remove quotes and use direct assignment
+          echo "DB_USER=${DB_USER}" > .env.test
+          echo "DB_PASSWORD=${DB_PASSWORD}" >> .env.test
+          echo "DB_NAME=${DB_NAME}" >> .env.test
+          echo "DB_PORT=${DB_PORT}" >> .env.test
+        env:
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+
+      - name: Verify .env.test (masked)
+        run: sed 's/=.*$/=***/' .env.test
 
       - name: Build and run tests
         run: |
