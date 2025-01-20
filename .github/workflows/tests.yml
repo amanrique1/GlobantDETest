@@ -22,8 +22,10 @@ jobs:
           echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env.test
           chmod 600 .env.test
 
-      - name: Verify .env.test
-        run: cat .env.test
+      - name: Debug Environment Variables
+        run: |
+          echo "Checking if variables are set (should not be empty):"
+          grep -v '^#' .env.test | grep -v '^$' | sed 's/=.*/=<redacted>/'
 
       - name: Debug Docker Compose
         run: docker compose -f docker-compose.test.yaml --env-file .env.test config
