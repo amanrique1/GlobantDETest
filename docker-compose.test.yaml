@@ -23,6 +23,7 @@ services:
       - DB_USER=$DB_USER
       - DB_PASSWORD=$DB_PASSWORD
       - DB_NAME=$DB_NAME
+      - DB_PORT=$DB_PORT
     depends_on:
       test_postgres:
         condition: service_healthy
