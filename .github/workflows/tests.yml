@@ -22,6 +22,9 @@ jobs:
           echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env.test
           export $(cat .env.test | xargs)
 
+      - name: Verify .env.test
+        run: cat .env.test
+
       - name: Debug Docker Compose
         run: docker compose --env-file .env.test config
 
