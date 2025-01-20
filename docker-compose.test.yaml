@@ -21,6 +21,8 @@ services:
       - .:/app
     env_file:
       - .env.test
+    environment:
+      DB_HOST: test_postgres
     depends_on:
       test_postgres:
         condition: service_healthy

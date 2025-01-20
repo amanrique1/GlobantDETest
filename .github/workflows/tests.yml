@@ -19,7 +19,6 @@ jobs:
           echo "DB_USER=${{ secrets.DB_USER }}" >> .env.test
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env.test
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env.test
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env.test
           echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env.test
           chmod 600 .env.test
 
