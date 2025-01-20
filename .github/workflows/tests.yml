@@ -20,7 +20,7 @@ jobs:
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env.test
           echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env.test
           echo "DB_PORT=${{ secrets.DB_PORT }}" >> .env.test
-          export $(cat .env.test | xargs)
+          chmod 600 .env.test
 
       - name: Verify .env.test
         run: cat .env.test
