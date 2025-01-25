@@ -1,5 +1,4 @@
 services:
-
   backend:
     build:
       context: .
@@ -17,6 +16,3 @@ services:
       interval: 60s          # Check every 60 seconds after that
       retries: 5             # Retry 5 times if health check fails
       timeout: 5s
-
-volumes:
-  postgres_data:
