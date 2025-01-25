@@ -1,37 +1,26 @@
 import os
 import json
 
-import boto3
-from botocore.exceptions import ClientError
+from google.cloud.secretmanager import SecretManagerServiceClient
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy_utils import database_exists, create_database
 
 # Database connection building from secrets manager
-secret_name = "globant-db"
-region_name = "us-east-1"
 
-# Create a Secrets Manager client
-session = boto3.session.Session()
-client = session.client(
-    service_name='secretsmanager',
-    region_name=region_name
-)
+client = SecretManagerServiceClient()
+name = "projects/770855044102/secrets/postgresdb-cred/versions/latest"
+response = client.access_secret_version(request={"name": name})
+payload = response.payload.data.decode("UTF-8")
 
-try:
-    get_secret_value_response = client.get_secret_value(
-        SecretId=secret_name
-    )
-except ClientError as e:
-    raise e
-
-secret = json.loads(get_secret_value_response['SecretString'])
-DB_USER = secret["username"]
-DB_PASSWORD = secret["password"]
-DB_HOST = secret["host"]
-DB_PORT = secret["port"]
+secret = json.loads(payload)
+DB_USER = secret["DB_USER"]
+DB_PASSWORD = secret["DB_PASSWORD"]
+DB_HOST = secret["DB_HOST"]
+DB_PORT = secret["DB_PORT"]
 DB_NAME = os.getenv("DB_NAME")
+
 DB_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 # Create the database engine
