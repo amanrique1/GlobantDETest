@@ -2,10 +2,10 @@ import csv
 from io import StringIO
 from typing import List, Dict, Any
 from utils.constants import UNICODE_DECODE_ERROR_MSG, CSV_ERROR_MSG, GENERIC_ERROR_MSG
-from utils.log_manager import get_logger
+from utils.log_manager import SingletonLogger
 
 # Ensure type safety
-logger = get_logger()
+logger = SingletonLogger().get_logger()
 
 async def process_csv(file_content: bytes, columns: List[str]) -> List[Dict[str, Any]]:
     """

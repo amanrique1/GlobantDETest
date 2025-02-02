@@ -6,10 +6,10 @@ from sqlalchemy.orm import Session
 from models.db_models import Job
 from services.utils import process_csv
 from utils.constants import *
-from utils.log_manager import get_logger
+from utils.log_manager import SingletonLogger
 
 # Ensure type safety
-logger = get_logger()
+logger = SingletonLogger().get_logger()
 
 async def create_jobs_csv(file_content: bytes, db: Session) -> int:
     """

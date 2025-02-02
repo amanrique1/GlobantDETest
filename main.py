@@ -5,7 +5,7 @@ from routers.job_router import job_router
 from routers.department_router import dept_router
 from routers.employee_router import employee_router
 
-from utils.log_manager import get_logger
+from utils.log_manager import SingletonLogger
 
 from fastapi import FastAPI
 
@@ -13,7 +13,7 @@ from fastapi import FastAPI
 db_models.Base.metadata.create_all(bind=engine)
 
 # Get the logger instance
-logger = get_logger()
+logger = SingletonLogger().get_logger()
 
 # Initialize the FastAPI application
 app = FastAPI(
