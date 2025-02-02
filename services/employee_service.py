@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from models.db_models import Employee
 from services.utils import process_csv
 from utils.constants import *
+from utils.decorators import db_operation
 from utils.log_manager import SingletonLogger
 
 # Ensure type safety
@@ -26,7 +27,7 @@ async def create_employees_csv(file_content: bytes, db: Session) -> int:
     records = await process_csv(file_content, Employee.__table__.columns.keys())
     return await create_employees(records, db)
 
-
+@db_operation
 async def create_employees(data: List[Dict[str, Any]], db: Session) -> int:
     """
     Creates employees in the database in batches.
@@ -42,46 +43,19 @@ async def create_employees(data: List[Dict[str, Any]], db: Session) -> int:
     Raises:
         Exception: If a duplicate record is found or an error occurs during processing.
     """
-    try:
-        nullable_columns = [column.key for column in inspect(Employee).columns if column.nullable]
-        for i in range(0, len(data), BATCH_SIZE):
-            batch = data[i:i + BATCH_SIZE]
-            # Replace empty values in nullable columns for None
-            employees = [
-                Employee(**{
-                    key: (None if isinstance(value, str) and value.strip() == "" and key in nullable_columns else value)
-                    for key, value in item.items()
-                })
-                for item in batch
-            ]
-            db.bulk_save_objects(employees)
-            db.flush()  # Flush after each batch to persist to database
+    nullable_columns = [column.key for column in inspect(Employee).columns if column.nullable]
+    for i in range(0, len(data), BATCH_SIZE):
+        batch = data[i:i + BATCH_SIZE]
+        # Replace empty values in nullable columns for None
+        employees = [
+            Employee(**{
+                key: (None if isinstance(value, str) and value.strip() == "" and key in nullable_columns else value)
+                for key, value in item.items()
+            })
+            for item in batch
+        ]
+        db.bulk_save_objects(employees)
+        db.flush()  # Flush after each batch to persist to database
 
-        db.commit()  # Commit all changes at the end
-        return len(data)
-
-    except TypeError as e:
-        db.rollback()
-        logger.error(f"Type error occurred: {e}")
-        raise Exception(DATA_TYPE_ERROR_MSG)
-
-    except IntegrityError as e:
-        db.rollback()
-        logger.error(f"Integrity error occurred: {e.orig}")
-        error_message = str(e.orig).lower()
-
-        if "foreign key violation" in error_message or "foreign key constraint" in error_message:
-            raise Exception(FOREIGN_KEY_VIOLATION_MSG)
-        elif "duplicate key value violates unique constraint" in error_message:
-            raise Exception(UNIQUE_CONSTRAINT_VIOLATION_MSG)
-        raise Exception(GENERIC_ERROR_MSG)
-
-    except (OperationalError, DatabaseError) as e:
-        db.rollback()
-        logger.error(f"Database error occurred: {e.orig}")
-        raise Exception(GENERIC_ERROR_MSG)
-
-    except Exception as e:
-        db.rollback()
-        logger.error(f"An unexpected error occurred: {e}")
-        raise Exception(GENERIC_ERROR_MSG)
+    db.commit()  # Commit all changes at the end
+    return len(data)
