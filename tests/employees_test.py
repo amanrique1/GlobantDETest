@@ -18,9 +18,9 @@ from tests.generator import (
     get_invalid_employees_id,
     list_of_dicts_to_csv_bytes,
     list_of_dicts_to_json_bytes)
-from utils.log_manager import get_logger
+from utils.log_manager import SingletonLogger
 
-logger = get_logger()
+logger = SingletonLogger().get_logger()
 
 @pytest.mark.asyncio
 async def test_create_employees_successfully(db: Session):

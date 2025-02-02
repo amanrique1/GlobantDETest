@@ -7,10 +7,10 @@ from sqlalchemy import text
 from models.db_models import Department
 from services.utils import process_csv
 from utils.constants import *
-from utils.log_manager import get_logger
+from utils.log_manager import SingletonLogger
 
 # Ensure type safety
-logger = get_logger()
+logger = SingletonLogger().get_logger()
 
 # Get queries dir
 QUERY_DIR = os.path.join(os.path.dirname(__file__), 'queries')
